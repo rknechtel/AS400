@@ -1,0 +1,8 @@
+
+CVTDELIM - CONVERT COMMA DELIMITED FILE TO AS/400 DB PF
+
+Member          Type            Text                            
+-------------------------------------------------------------------
+CVTDELIM    	CMD         	CONVERT DELIMETED FILE - COMMAND
+CVTDELIMC   	CLP         	CONVERT DELIMETED FILE - CLP    
+CVTDELIMR   	RPGLE       	CONVERT DELIMETED FILE - RPGLE  

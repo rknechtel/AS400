@@ -1,0 +1,391 @@
+      *****************************************************************
+      ** COMPANY NAME: HPA SYSTEMS
+      *****************************************************************
+      ** Application......: MESSAGE BOARD
+      **
+      ** Module Name......: MESSAGE DISPLAY PROGRAM
+      ** Program Name.....: MSFBRDDR
+      ** Program Description: DISPLAYS MESSAGES FOR USER.
+      **
+      **
+      ** Documentation....: RICHARD KNECHTEL
+      ** Called By........: WHATEVER YOU WANT.
+      ** Sequence.........:
+      ** Programs Called..:
+      **
+      ** Create Options...:  *USRPRF(USER)
+      ** Object Owner.....:  QPGMR
+      ** CREATED By.......:  RICHARD KNECHTEL
+      ** Creation Date....:  12/01/2001
+      **
+      *********  LICENSE  ************************************
+      *                                                      *
+      * This program is free software; you can redistribute  *
+      * it and/or modify it under the terms of the GNU       *
+      * General Public License as published by  the Free     *
+      * Software Foundation; either version 2 of the License,*
+      * or (at your option) any later version.               *
+      *                                                      *
+      * This program is distributed in the hope that it will *
+      * be useful, but WITHOUT ANY WARRANTY; without even    *
+      * the implied warranty of MERCHANTABILITY or FITNESS   *
+      * FOR A PARTICULAR PURPOSE.  See the GNU General       *
+      * Public License for more details.                     *
+      *                                                      *
+      * You should have received a copy of the GNU General   *
+      * Public License along with this program; if not,      *
+      * write to the                                         *
+      * Free Software                                        *
+      * Foundation, Inc., 675 Mass Ave,                      *
+      * Cambridge, MA 02139, USA.                            *
+      *                                                      *
+      ********************************************************
+      *****************************************************************
+      *     INPUT FILES: MSGBRDPF
+      *    UPDATE FILES: MSGBRDPF
+      *****************************************************************
+      *                          PARAMETERS
+      *   ------------------------------------------------------------
+      *
+      *   PARAMETERS PASSED TO THIS PROGRAM:
+      *
+      *      NAME        DESCRIPTION
+      *   ----------   -----------------------------------------------
+      *      PARM1       USER ID
+      *
+      *****************************************************************
+      *                        PROGRAMS CALLED
+      *   ------------------------------------------------------------
+      *
+      *****************************************************************
+      *                        INDICATOR SUMMARY
+      *   ------------------------------------------------------------
+      *   *INXX    FUNCTION
+      *   ------ -----------------------------------------------------
+      *   *INLR  END OF FILE
+      *   *IN99  END OF FILE ON MSGBRDPF
+      *   *IN97  READ/READP ON MSGBDRPF
+      *   *IN96  TURN ON RED FOR MESSAGES.
+      *   *IN95  NO RECORD - ON DELETE
+      *
+      *****************************************************************
+      *   COMPILE NOTES:
+      *                 CRTBNDRPG PGM(*LIBL/MSGBRDDR)
+      *                               SRCFILE(*LIBL/QRPGLESRC)
+      *                               DFTACTGRP(*NO)
+      *****************************************************************
+      *  MODIFICATION LOG:                                            *
+      *===============================================================*
+      *##|WHO        |WHEN      |WHAT & (CSR#)                        *
+      *===============================================================*
+      *  |           |          |                                     *
+      *  |           |          |                                     *
+      *---------------------------------------------------------------*
+      *********  LICENSE  ************************************
+      *                                                      *
+      * This program is free software; you can redistribute  *
+      * it and/or modify it under the terms of the GNU       *
+      * General Public License as published by  the Free     *
+      * Software Foundation; either version 2 of the License,*
+      * or (at your option) any later version.               *
+      *                                                      *
+      * This program is distributed in the hope that it will *
+      * be useful, but WITHOUT ANY WARRANTY; without even    *
+      * the implied warranty of MERCHANTABILITY or FITNESS   *
+      * FOR A PARTICULAR PURPOSE.  See the GNU General       *
+      * Public License for more details.                     *
+      *                                                      *
+      * You should have received a copy of the GNU General   *
+      * Public License along with this program; if not,      *
+      * write to the                                         *
+      * Free Software                                        *
+      * Foundation, Inc., 675 Mass Ave,                      *
+      * Cambridge, MA 02139, USA.                            *
+      *                                                      *
+      ********************************************************
+      *****************************************************************
+      *            F SPECIFICATIONS
+      *****************************************************************
+     FMSGBRDDF  CF   E             WORKSTN
+     F                                     INFDS(DSPFDS)
+     FMSGBRDPF  UF   E           K DISK
+      *****************************************************************
+      *            D SPECIFICATIONS
+      *****************************************************************
+      * INFDS FOR GETTING KEY
+     D DSPFDS          DS
+     D  KEY                  369    369
+      *
+      ** KEY DEFINITIONS
+     DF01              C                   CONST(X'31')
+     DF02              C                   CONST(X'32')
+     DF03              C                   CONST(X'33')
+     DF04              C                   CONST(X'34')
+     DF05              C                   CONST(X'35')
+     DF06              C                   CONST(X'36')
+     DF07              C                   CONST(X'37')
+     DF08              C                   CONST(X'38')
+     DF09              C                   CONST(X'39')
+     DF10              C                   CONST(X'3A')
+     DF11              C                   CONST(X'3B')
+     DF12              C                   CONST(X'3C')
+     DF13              C                   CONST(X'B1')
+     DF14              C                   CONST(X'B2')
+     DF15              C                   CONST(X'B3')
+     DF16              C                   CONST(X'B4')
+     DF17              C                   CONST(X'B5')
+     DF18              C                   CONST(X'B6')
+     DF19              C                   CONST(X'B7')
+     DF20              C                   CONST(X'B8')
+     DF21              C                   CONST(X'B9')
+     DF22              C                   CONST(X'BA')
+     DF23              C                   CONST(X'BB')
+     DF24              C                   CONST(X'BC')
+     DCLEAR            C                   CONST(X'BD')
+     DENTER            C                   CONST(X'F1')
+     DHELPP            C                   CONST(X'F3')
+     DPAGUP            C                   CONST(X'F4')                         (ROLLDOWN)
+     DPAGDN            C                   CONST(X'F5')                         (ROLLUP)
+     DPRINT            C                   CONST(X'F6')
+     DFALSE            C                   CONST('0')                           *OFF
+     DTRUE             C                   CONST('1')                           *ON
+      ** WORK VARIABLES **
+     DSYSDAT           S              8S 0
+     DFRDATE           S              8  0 INZ (*ZEROS)
+     DTODATE           S              8  0 INZ (*ZEROS)
+     DMSGNM            S              4  0 INZ(1)
+     DKLUSR            S             10    INZ(*BLANKS)
+      *****************************************************************
+      ** Prototypes
+      ** CONVERT MMDDYYYY --> YYYYMMDD
+     D CVT2YMD         PR             8  0
+     D   PR_NUM                       8  0 VALUE
+      ** CONVERT  YYMMDD --> MMDDYYYY
+     D CVT2MDY         PR             8  0
+     D   PR_NUM                       8  0 VALUE
+      *****************************************************************
+      *****************************************************************
+      *            C SPECIFICATIONS
+      *****************************************************************
+      * KEY LISTS
+      ** KEY LIST FOR SETEGT/SETLL
+     C     SETKEY        KLIST
+     C                   KFLD                    KLUSR
+     C                   KFLD                    FRDATE
+     C                   KFLD                    TODATE
+     C                   KFLD                    MSGNM
+      ** KEY LIST FOR DELETIONS
+     C     DELKY         KLIST
+     C                   KFLD                    TOUSR
+     C                   KFLD                    FROMDT
+     C                   KFLD                    TODT
+     C                   KFLD                    MSGNUM
+      ******************************************************
+      ** PROGRAM ENTRY PARM
+      ** PARM1 = USER ID --> PASSED FROM MSGBRDCL
+     C     *ENTRY        PLIST
+     C     PARM1         PARM      PARM1         PARM1            10
+      **
+      ******************************************************
+      **** MAINLINE PROGRAM ********************************
+      **
+      ** GET FIRST MESSAGE IF ONE.
+     C     *LOVAL        SETLL     MSGBRDPF                           94
+     C                   DOU       (NOT *IN99)
+     C                             AND ((TOUSR = PARM1)
+     C                             OR (TOUSR = 'ALL'))
+     C                             AND (TODT >= SYSDAT)
+     C                   READ (N)  MSGBRDPF                               99
+     C                   IF        (*IN99)
+     C                   LEAVE
+     C                   ENDIF
+     C                   ENDDO
+     C                   IF        (*IN99)
+     C                   EVAL      MESG = '*** NO MESSAGES ***'
+     C                   ENDIF
+      **
+     C                   EXSR      MSGSR
+     C                   EXSR      FILLFLD
+      **
+     C                   DOU       (KEY = F03)
+     C                   EXFMT     MESG1
+      * WHAT KEY PRESSED
+     C                   SELECT
+     C                   WHEN      KEY = F03
+     C                   LEAVE
+     C                   WHEN      KEY = F04
+     C                   EXSR      DELETE
+     C                   WHEN      KEY = PAGDN
+     C                   EXSR      ROLLD
+     C                   WHEN      KEY = PAGUP
+     C                   EXSR      ROLLU
+     C                   ENDSL
+     C                   ENDDO
+      ** WE ARE OUT OF HERE!
+     C                   EVAL      *INLR = TRUE
+     C                   RETURN
+      **************************************************
+      ** SUBROUTINES
+      **************************************************
+      * INITIALIZATION
+      **************************************************
+     C     *INZSR        BEGSR
+     C                   EVAL      SYSDAT = *DATE
+     C                   EVAL      SYSDAT = CVT2YMD(SYSDAT)
+     C                   ENDSR
+      **************************************************
+      * FILL FIELDS
+      **************************************************
+     C     FILLFLD       BEGSR
+      **
+     C                   EVAL      FRMUSER = FRMUSR
+     C                   EVAL      FRMDTE = CVT2MDY(FROMDT)
+     C                   EVAL      TODATE = CVT2MDY(TODT)
+     C                   EVAL      MESG = MESSAGE
+      **
+     C                   ENDSR
+      **************************************************
+      * ROLLU: ROLLUP/PAGEUP
+      **************************************************
+     C     ROLLU         BEGSR
+      **
+     C                   IF        (*IN97)
+     C                   EVAL      KLUSR = TOUSR
+     C                   Z-ADD     FROMDT        FRDATE
+     C                   Z-ADD     TODT          TODATE
+     C                   Z-ADD     MSGNUM        MSGNM
+     C     SETKEY        SETLL     MSGBRDPF                           94
+     C                   READP (N) MSGBRDF                                97
+     C                   ELSE
+     C                   DOU       (NOT *IN97)
+     C                             AND ((TOUSR = PARM1)
+     C                             OR (TOUSR = 'ALL'))
+     C                             AND (TODT >= SYSDAT)
+     C                   READP (N) MSGBRDF                                97
+     C                   IF        (*IN97)
+     C                   LEAVE
+     C                   ENDIF
+     C                   ENDDO
+     C                   ENDIF
+     C                   EXSR      MSGSR
+     **
+     C                   ENDSR
+      **************************************************
+      * ROLLD: ROLLDOWN/PAGEDOWN
+      **************************************************
+     C     ROLLD         BEGSR
+      **
+     C                   IF        (*IN97)
+     C                   EVAL      KLUSR = TOUSR
+     C                   Z-ADD     FROMDT        FRDATE
+     C                   Z-ADD     TODT          TODATE
+     C                   Z-ADD     MSGNUM        MSGNM
+     C     SETKEY        SETLL     MSGBRDPF                           94
+     C                   READ (N)  MSGBRDF                                97
+     C                   ELSE
+     C                   DOU       (NOT *IN97)
+     C                             AND ((TOUSR = PARM1)
+     C                             OR (TOUSR = 'ALL'))
+     C                             AND (TODT >= SYSDAT)
+     C                   READ (N)  MSGBRDPF                               97
+     C                   IF        (*IN97)
+     C                   LEAVE
+     C                   ENDIF
+     C                   ENDDO
+     C                   ENDIF
+     C                   EXSR      MSGSR
+      **
+     C                   ENDSR
+      **************************************************
+      * MESSAGE HANDLER
+      **************************************************
+     C     MSGSR         BEGSR
+      **
+      ** ARE WE AT THE TOP/BOTTOM OF THE FILE
+     C                   IF        (*IN97)
+     C                   EVAL      MSG = 'Last Message.'
+     C                   EVAL      *IN96 = TRUE
+     C                   EXSR      FILLFLD
+     C                   ELSE
+     C                   EVAL      MSG = ' '
+     C                   EVAL      *IN96 = FALSE
+     C                   EXSR      FILLFLD
+     C                   ENDIF
+      **
+     C                   ENDSR
+      **************************************************
+      * DELETE MESSAGE (F4)
+      **************************************************
+     C     DELETE        BEGSR
+      **
+     C                   IF        TOUSR = 'ALL'
+     C                   EVAL      MSG = 'Can not delete messages to ALL users.'
+     C                   EVAL      *IN96 = TRUE
+     C                   GOTO      SKIP
+     C                   ELSE
+     C     DELKY         DELETE    MSGBRDF                            95
+     C                   READ (N)  MSGBRDPF                               97
+     C                   IF        (*IN97)
+     C                   EXSR      ROLLU
+     C                   ENDIF
+     C                   EXSR      FILLFLD
+     C                   EXFMT     MESG1
+     C                   ENDIF
+      **
+     C     SKIP          ENDSR
+      ****************************************************************
+      *==============================================================*
+      * PROCEDURE Section of program                                 *
+      *==============================================================*
+      *==============================================================*
+      * (CVT2YMD) CONVERT MMDDYYYY --> YYYYMMDD                      *
+      *                                                              *
+      * This procedure will convert dates from MMDDYYYY to YYYYMMDD  *
+      *==============================================================*
+     PCVT2YMD          B                   EXPORT
+      *--------------------------------------------------------------*
+     DCVT2YMD          PI             8  0
+     D  NUM                           8  0 VALUE
+      **
+     DYMD              S              8  0 INZ (*ZEROS)
+     DYYYY             S              4  0 INZ (*ZEROS)
+     DMMDD             S              4  0 INZ (*ZEROS)
+      *--------------------------------------------------------------*
+     C                   MOVEL     NUM           MMDD
+     C                   MOVE      NUM           YYYY
+     C                   MOVEL     YYYY          YMD
+     C                   MOVE      MMDD          YMD
+     C                   RETURN    YMD
+      *--------------------------------------------------------------*
+     C     *PSSR         BEGSR
+     C                   RETURN    0
+     C                   ENDSR
+      *--------------------------------------------------------------*
+     P CVT2YMD         E
+      *==============================================================*
+      * (CVT2MDY) CONVERT YYYYMMDD --> MMDDYYYY                      *
+      *                                                              *
+      * This procedure will convert dates from YYYYMMDD to MMDDYYYY  *
+      *==============================================================*
+     PCVT2MDY          B                   EXPORT
+      *--------------------------------------------------------------*
+     DCVT2MDY          PI             8  0
+     D  NUM                           8  0 VALUE
+      **
+     DMDY              S              8  0 INZ (*ZEROS)
+     DYYYY             S              4  0 INZ (*ZEROS)
+     DMMDD             S              4  0 INZ (*ZEROS)
+      *--------------------------------------------------------------*
+     C                   MOVE      NUM           MMDD
+     C                   MOVEL     NUM           YYYY
+     C                   MOVE      YYYY          MDY
+     C                   MOVEL     MMDD          MDY
+     C                   RETURN    MDY
+      *--------------------------------------------------------------*
+     C     *PSSR         BEGSR
+     C                   RETURN    0
+     C                   ENDSR
+      *--------------------------------------------------------------*
+     P CVT2MDY         E
+      *--------------------------------------------------------------*
+      **** END OF PROGRAM ********************************************

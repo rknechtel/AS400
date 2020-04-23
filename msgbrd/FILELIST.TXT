@@ -1,0 +1,16 @@
+These are the files you should have on the AS/400
+--------------------------------------------------
+
+Member          Type            Text                                            
+=======================================================================================
+MSGBRDCL    	CLP         	Message Board Display program driver            
+MSGBRDCLQF  	CLP         	Message Board Display program driver - W/OPNQRYF
+MSGBRDDF    	DSPF        	Message Board Display program Display file      
+MSGBRDDR    	RPGLE       	Message Board Display program                   
+MSGBRDMC    	CLP         	Message Board Maintenance driver                
+MSGBRDMF    	DSPF        	Message Board Maintenance Display file          
+MSGBRDMR    	RPGLE       	Message Bord Maintenance program                
+MSGBRDPF    	PF          	Message file                                    
+MSGBRDRR    	RPGLE       	Message Board Message Removal  
+README      	TXT         	Readme File For Message Board  
+STARTUP     	CLP         	Sample Start Up use CL Program 

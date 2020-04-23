@@ -1,0 +1,339 @@
+     HALWNULL(*INPUTONLY)
+      *****************************************************************
+      ** COMPANY NAME: HPA SYSTEMS
+      *****************************************************************
+      ** Application......:  CONVERT COMMA DELIMETED FILE
+      **
+      ** Module Name......:
+      ** Program Name.....:  CVTDELIMR (RPGLE)
+      ** Program Description: CONVERT COMMA DELIMITED FILES TO AN
+      **                      AS/400 DB
+      **
+      ** Documentation....:
+      ** Called By........:
+      ** Sequence.........:
+      ** Programs Called..:
+      **
+      ** Create Options...:  *USRPRF(USER)
+      ** Object Owner.....:  QPGMR
+      **CREATED By.......:  RICHARD KNECHTEL
+      **Creation Date....:  12/28/2001
+      **
+      **
+      **  NOTE: ANY DELIMITED FILES SENT UP -MUST- HAVE A
+      **      TRAILING COMMA ON EACH RECORD!!!!!
+      **
+      **
+      *********  LICENSE  ************************************
+      *                                                      *
+      * This program is free software; you can redistribute  *
+      * it and/or modify it under the terms of the GNU       *
+      * General Public License as published by  the Free     *
+      * Software Foundation; either version 2 of the License,*
+      * or (at your option) any later version.               *
+      *                                                      *
+      * This program is distributed in the hope that it will *
+      * be useful, but WITHOUT ANY WARRANTY; without even    *
+      * the implied warranty of MERCHANTABILITY or FITNESS   *
+      * FOR A PARTICULAR PURPOSE.  See the GNU General       *
+      * Public License for more details.                     *
+      *                                                      *
+      * You should have received a copy of the GNU General   *
+      * Public License along with this program; if not,      *
+      * write to the                                         *
+      * Free Software                                        *
+      * Foundation, Inc., 675 Mass Ave,                      *
+      * Cambridge, MA 02139, USA.                            *
+      *                                                      *
+      ********************************************************
+      *****************************************************************
+      *
+      *     INPUT FILES: INPUTPF
+      *
+      *    UPDATE FILES: OUTPUTPF
+      *
+      *****************************************************************
+      *
+      *                          PARAMETERS
+      *   ------------------------------------------------------------
+      *
+      *   PARAMETERS PASSED TO THIS PROGRAM:
+      *
+      *      NAME        DESCRIPTION
+      *   ----------   -----------------------------------------------
+      *      NONE
+      *
+      *****************************************************************
+      *
+      *                        PROGRAMS CALLED
+      *   ------------------------------------------------------------
+      *   NO PROGRAMS CALLED
+      *
+      *****************************************************************
+      *
+      *                        INDICATOR SUMMARY
+      *   ------------------------------------------------------------
+      *   *INXX    FUNCTION
+      *   ------ -----------------------------------------------------
+      *   *INLR  END OF FILE
+      *   *IN20  ERROR OPENING FILE(S)
+      *   *IN90  EOF QADBIFLD/INPUTPF
+      *
+      *****************************************************************
+      *  MODIFICATION LOG:                                            *
+      *===============================================================*
+      *##|WHO        |WHEN      |WHAT & (CSR#)                        *
+      *===============================================================*
+      *  |           |          |                                     *
+      *  |           |          |                                     *
+      *---------------------------------------------------------------*
+      *****************************************************************
+      *****************************************************************
+      *
+      *            FILES SPECIFICATIONS
+      *
+      *****************************************************************
+      ** INPUTPF = INPUT FILE FROM CVTDELIMC
+     FINPUTPF   IF   F 1024        DISK    INFDS(FILDSA)
+     F                                     USROPN
+      ** Cross reference physical file IN QSYS
+     FQADBIFLD  IF   E           K DISK
+      ** OUTPUTPF = OUTPUT FILE FROM FILE01C
+     FOUTPUTPF  O    F 1024        DISK    INFDS(FILDSA1)
+     F                                     USROPN
+      **
+      *****************************************************************
+      *
+      *            D SPECIFICATIONS
+      *
+      *****************************************************************
+      **
+     D*DTA             S              1    DIM(1024)
+     D CTLA            S              1    DIM(8)
+     D SCL             S              1    DIM(80)
+     D ARL             S              9  0 DIM(80)                              LENGTH
+     D ART             S              1    DIM(80)                              TYPE
+     D DECP            S              4  0 DIM(80)                              DEC POSITION
+     D SCN             S              3  0 DIM(80)
+      **
+     D FILEXP          DS
+     D  MSGEX                 46     52
+     D  ODPEX                 81     82
+     D  WSL                  370    370
+     D  WSC                  371    371
+      **
+     D BINARY          DS
+     D  BLIN                   1      2B 0
+     D  LINHEX                 2      2
+     D  BCOL                   3      4B 0
+     D  COLHEX                 4      4
+      **
+     D FILDSA          DS
+     D  MSGDSA                46     52
+     D  ODPDSA                81     82
+     D  FILNAM                83     92
+     D  LIBDSA                93    102
+     D  LENDSA               125    126B 0
+     D  MBRDSA               129    138
+     D  NBRDSA               156    159B 0
+     D  ACCDSA               160    161
+     D  DUPDSA               162    162
+     D  SRCDSA               163    163
+     D  BYTE1A               196    196
+     D  NPHYSA               211    212B 0
+     D  RRN#                 397    400B 0
+      **
+     D FILDSA1         DS
+     D  MSGDSA1               46     52
+     D  ODPDSA1               81     82
+     D  FILNAM1               83     92
+     D  LIBDSA1               93    102
+     D  LENDSA1              125    126B 0
+     D  MBRDSA1              129    138
+     D  NBRDSA1              156    159B 0
+     D  ACCDSA1              160    161
+     D  DUPDSA1              162    162
+     D  SRCDSA1              163    163
+     D  BYTE1A1              196    196
+     D  NPHYSA1              211    212B 0
+     D  RRN#1                397    400B 0
+      **
+      ** WORK VARIABLES **
+     DPOS_DEC          S              2  0 INZ(*ZEROS)
+     DMYPOS            S              3  0 INZ(*ZEROS)
+     DX                S              3  0 INZ(*ZEROS)
+     DY                S              3  0 INZ(*ZEROS)
+     DZ                S              3  0 INZ(*ZEROS)
+     DLENG             S              3  0 INZ(*ZEROS)
+     DOFFSET           S              3  0 INZ(*ZEROS)
+     DNUMLEN           S              3  0 INZ(*ZEROS)
+     DMYDECP           S              3  0 INZ(*ZEROS)
+     DNUMREC           S              9  0 INZ(*ZEROS)
+     DSIZE             S              9  0 INZ(*ZEROS)
+     DLAST_CH          S             10  0 INZ(*ZEROS)
+     DLIBR             S             10    INZ(*BLANKS)
+     DMEMBR            S             10    INZ(*BLANKS)
+     DFILENM           S             10    INZ(*BLANKS)
+     DTMPFLD           S             60    INZ(*BLANKS)
+     DTMPDEC           S             20    INZ(*BLANKS)
+     DOUTA             S           1024    INZ(*BLANKS)
+      ** STANDARD CONSTANTS
+     DFALSE            C                   CONST('0')                           *OFF
+     DTRUE             C                   CONST('1')                           *ON
+     DCOMMA            C                   CONST(',')                           ','
+      **
+      *****************************************************************
+      *
+      *            I SPECIFICATIONS
+      *
+      *****************************************************************
+      **
+     IINPUTPF   AA  01
+     I                                  1 1024  DTA
+      **
+      *****************************************************************
+      *
+      *            C SPECIFICATIONS
+      *
+      *****************************************************************
+      *****************************************************************
+      ** KEY LISTS
+     C     KEYL          KLIST
+     C                   KFLD                    DBILIB
+     C                   KFLD                    DBIFIL
+      ****************************************************************
+      **
+     C                   OPEN      INPUTPF                              20
+     C                   OPEN      OUTPUTPF                             20
+      **
+     C                   IF        (NOT *IN20)
+     C                   MOVEL     FILNAM1       DBIFIL
+     C                   MOVEL     LIBDSA1       DBILIB
+     C                   Z-ADD     1             X
+      **
+     C     KEYL          SETLL     QADBIFLD                             90
+     C                   DOU       (*IN90)
+     C     KEYL          READE     QADBIFLD                             9090
+     C                   IF        (NOT *IN90)
+     C                   MOVE      DBIILN        ARL(X)
+     C                   MOVE      DBIITP        ART(X)
+     C                   MOVE      DBINSC        DECP(X)
+     C                   EVAL      X = X + 1
+     C                   ENDIF
+     C                   ENDDO
+      **
+     C                   EVAL      *IN90 = FALSE
+      **
+     C                   DOU       (*IN90)
+     C                   READ      INPUTPF                                90
+     C     COMMA         SCAN      DTA           SCN
+     C                   Z-ADD     0             MYPOS
+     C                   Z-ADD     1             Z
+     C                   Z-ADD     1             X
+     C                   Z-ADD     1             Y
+     C                   Z-ADD     0             LENG
+     C                   Z-ADD     0             OFFSET
+     C                   Z-ADD     0             NUMLEN
+     C                   EVAL      TMPFLD = *BLANKS
+     C                   EVAL      TMPDEC = *BLANKS
+     C                   EVAL      OUTA = *BLANKS
+      **
+     C                   IF        %LEN(DTA)>0
+     C                   DOU       %SUBST(DTA:Y:10) = '              '
+     C                   SELECT
+      ** ALPHA
+     C                   WHEN      %SUBST(DTA:Y:1) = '"'
+     C                   EVAL      Y = Y + 1
+     C                   EVAL      LENG = %SCAN('"':DTA:Y) - Y
+     C                   EVAL      TMPFLD = %SUBST(DTA:Y:LENG)
+     C                   EVAL      Y = Y + LENG + 2
+     C                   OTHER
+     C                   EVAL      LENG = %SCAN(',':DTA:Y) - Y
+      * NO MORE COMMAS
+     C                   IF        LENG < 0
+     C     ' '           CHECKR    DTA           LAST_CH
+     C                   EVAL      LENG = LAST_CH - Y
+     C                   ENDIF
+     C                   EVAL      TMPFLD = %TRIM(%SUBST(DTA:Y:LENG))
+     C                   IF        TMPFLD = '' OR TMPFLD = ' '
+     C                   EVAL      TMPFLD = '0'
+     C                   ENDIF
+     C                   EVAL      Y = Y + LENG + 1
+     C                   ENDSL
+      **
+     C                   SELECT
+     C                   WHEN      ART(X) = 'A'
+     C                   EVAL      %SUBST(OUTA:Z:LENG) = %TRIM(TMPFLD)
+     C                   WHEN      ART(X) = 'S'
+     C                   Z-ADD     0             MYDECP
+     C                   EVAL      MYDECP = %SCAN('.':TMPFLD)
+     C                   IF        MYDECP > 0
+     C                   Z-ADD     DECP(X)       POS_DEC
+     C                   EVAL      TMPDEC = %SUBST(TMPFLD:1:MYDECP-1)
+     C                             + %SUBST(TMPFLD: MYDECP+1 : POS_DEC)
+     C                   EVAL      NUMLEN = %LEN(%TRIM(TMPDEC))
+     C                   ELSE
+     C                   EVAL      TMPDEC = %TRIM(TMPFLD)
+     C                   EVAL      NUMLEN = %LEN(%TRIM(TMPDEC))
+     C                   ENDIF
+     C                   EVAL      OFFSET = ARL(X)-NUMLEN
+     C                   IF        LENG = 0
+     C                   EVAL      %SUBST(OUTA:Z+OFFSET:1) = %TRIM(TMPDEC)
+     C                   ELSE
+     C                   EVAL      %SUBST(OUTA:Z+OFFSET:LENG) = %TRIM(TMPDEC)
+     C                   ENDIF
+     C                   ENDSL
+      **
+     C                   EVAL      Z = Z + ARL(X)
+     C                   EVAL      X = X + 1
+     C                   ENDDO
+     C                   ENDIF
+      **
+     C                   EXCEPT    #OUT
+     C                   ENDDO
+      **
+      ** GET I/O FEEDBACK INFORMATION
+      **
+     C                   EXSR      $OPNIO
+     C     'F1'          DSPLY                   FILENM
+     C                   EXSR      $OPNIO1
+     C     'F3'          DSPLY                   FILENM
+      **
+      ** MOVE 80 BYTES FROM INPUT RECORD
+      **
+     C                   ENDIF
+      ** WE ARE OUT OF HERE!
+     C                   EVAL      *INLR = TRUE
+     C                   RETURN
+      *****************************************************************
+      * OPEN FEEDBACK AREA - GET FILE INFORMATION
+      *****************************************************************
+     C     $OPNIO        BEGSR
+      **
+     C                   Z-ADD     NBRDSA        NUMREC
+     C                   Z-ADD     LENDSA        SIZE
+     C                   MOVE      LIBDSA        LIBR
+     C                   MOVE      MBRDSA        MEMBR
+     C                   MOVE      FILNAM        FILENM
+      **
+     C                   ENDSR
+      *****************************************************************
+     C     $OPNIO1       BEGSR
+      **
+     C                   Z-ADD     NBRDSA1       NUMREC
+     C                   Z-ADD     LENDSA1       SIZE
+     C                   MOVE      LIBDSA1       LIBR
+     C                   MOVE      MBRDSA1       MEMBR
+     C                   MOVE      FILNAM1       FILENM
+      **
+     C                   ENDSR
+      *****************************************************************
+      *
+      *            O SPECIFICATIONS
+      *
+      *****************************************************************
+      **
+     OOUTPUTPF  E            #OUT
+     O                       OUTA
+      **
+      **********END OF PROGRAM****************************************

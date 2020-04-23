@@ -1,0 +1,481 @@
+      ***************************************************************
+      ** COMPANY NAME: HPA SYSTEMS
+      *****************************************************************
+      ** Application......:  MESSAGE BORAD
+      **
+      ** Module Name......:  MESSAGE BOARD MAINTENANCE
+      ** Program Name.....:  MESSAGE BOARD MAINTENANCE
+      ** Program Description: ALLOWS THE MAINTAINING OF THE MESSAGE BORAD
+      **                      FILE.
+      **
+      ** Documentation....:
+      ** Called By........:
+      ** Sequence.........:
+      ** Programs Called..:
+      **
+      ** Create Options...:  *USRPRF(USER)
+      ** Object Owner.....:  QPGMR
+      ** CREATED By.......:  RICHARD KNECHTEL
+      ** Creation Date....:  12/01/2001
+      **
+      *********  LICENSE  ************************************
+      *                                                      *
+      * This program is free software; you can redistribute  *
+      * it and/or modify it under the terms of the GNU       *
+      * General Public License as published by  the Free     *
+      * Software Foundation; either version 2 of the License,*
+      * or (at your option) any later version.               *
+      *                                                      *
+      * This program is distributed in the hope that it will *
+      * be useful, but WITHOUT ANY WARRANTY; without even    *
+      * the implied warranty of MERCHANTABILITY or FITNESS   *
+      * FOR A PARTICULAR PURPOSE.  See the GNU General       *
+      * Public License for more details.                     *
+      *                                                      *
+      * You should have received a copy of the GNU General   *
+      * Public License along with this program; if not,      *
+      * write to the                                         *
+      * Free Software                                        *
+      * Foundation, Inc., 675 Mass Ave,                      *
+      * Cambridge, MA 02139, USA.                            *
+      *                                                      *
+      ********************************************************
+      *****************************************************************
+      *     INPUT FILES: MSGBRDPF
+      *    UPDATE FILES: MSGBRDPF
+      *****************************************************************
+      *                          PARAMETERS
+      *   ------------------------------------------------------------
+      *   PARAMETERS PASSED TO THIS PROGRAM:
+      *
+      *      NAME        DESCRIPTION
+      *   ----------   -----------------------------------------------
+      *      PARM1     USER ID
+      *****************************************************************
+      *                        PROGRAMS CALLED
+      *   ------------------------------------------------------------
+      *   NO PROGRAMS CALLED
+      *
+      *****************************************************************
+      *
+      *                        INDICATOR SUMMARY
+      *   ------------------------------------------------------------
+      *   *INXX    FUNCTION
+      *   ------ -----------------------------------------------------
+      *   *INLR  END OF FILE
+      *   *IN09  DSP(UL/PR) OF SELIO
+      *   *IN21  CHAIN OF MSGBRDPF
+      *   *IN22  DELETE OF MESSAGE RECORD
+      *   *IN40  SFLCLR
+      *   *IN42  SFLDSP
+      *   *IN43  SFLDSPCTL / SFLCLR / SFLEND
+      *   *IN60  SFLMSG
+      *   *IN66  ERRMSG
+      *   *IN96  RECORD SETLL MSGBRDPF
+      *   *IN97  NO RECORD SETLL MSGBRDPF
+      *   *IN98  EOF READC SFL1
+      *   *IN99  EOF READ MSGBRDPF
+      *
+      *****************************************************************
+      *   COMPILE NOTES:
+      *                 CRTBNDRPG PGM(*LIBL/MSGBRDMR)
+      *                               SRCFILE(*LIBL/QRPGLESRC)
+      *                               DFTACTGRP(*NO)
+      *****************************************************************
+      *  MODIFICATION LOG:                                            *
+      *===============================================================*
+      *##|WHO        |WHEN      |WHAT & (CSR#)                        *
+      *===============================================================*
+      *  |           |          |                                     *
+      *  |           |          |                                     *
+      *---------------------------------------------------------------*
+      *****************************************************************
+      *********  LICENSE  ************************************
+      *                                                      *
+      * This program is free software; you can redistribute  *
+      * it and/or modify it under the terms of the GNU       *
+      * General Public License as published by  the Free     *
+      * Software Foundation; either version 2 of the License,*
+      * or (at your option) any later version.               *
+      *                                                      *
+      * This program is distributed in the hope that it will *
+      * be useful, but WITHOUT ANY WARRANTY; without even    *
+      * the implied warranty of MERCHANTABILITY or FITNESS   *
+      * FOR A PARTICULAR PURPOSE.  See the GNU General       *
+      * Public License for more details.                     *
+      *                                                      *
+      * You should have received a copy of the GNU General   *
+      * Public License along with this program; if not,      *
+      * write to the                                         *
+      * Free Software                                        *
+      * Foundation, Inc., 675 Mass Ave,                      *
+      * Cambridge, MA 02139, USA.                            *
+      *                                                      *
+      ********************************************************
+      *****************************************************************
+      ** F SPECIFICATIONS
+      *****************************************************************
+     FMSGBRDMF  CF   E             WORKSTN
+     F                                     SFILE(SFL1:SFLRN)
+     F                                     INFDS(DSPFDS)
+     FMSGBRDPF  UF A E           K DISK
+      *****************************************************************
+      *****************************************************************
+      ** D SPECIFICATIONS
+      *****************************************************************
+      * INFDS FOR GETTING KEY
+     D DSPFDS          DS
+     D  KEY                  369    369
+     D  PAGRRN               378    379B 0
+      ** KEY DEFINITIONS
+     DF01              C                   CONST(X'31')
+     DF02              C                   CONST(X'32')
+     DF03              C                   CONST(X'33')
+     DF04              C                   CONST(X'34')
+     DF05              C                   CONST(X'35')
+     DF06              C                   CONST(X'36')
+     DF07              C                   CONST(X'37')
+     DF08              C                   CONST(X'38')
+     DF09              C                   CONST(X'39')
+     DF10              C                   CONST(X'3A')
+     DF11              C                   CONST(X'3B')
+     DF12              C                   CONST(X'3C')
+     DF13              C                   CONST(X'B1')
+     DF14              C                   CONST(X'B2')
+     DF15              C                   CONST(X'B3')
+     DF16              C                   CONST(X'B4')
+     DF17              C                   CONST(X'B5')
+     DF18              C                   CONST(X'B6')
+     DF19              C                   CONST(X'B7')
+     DF20              C                   CONST(X'B8')
+     DF21              C                   CONST(X'B9')
+     DF22              C                   CONST(X'BA')
+     DF23              C                   CONST(X'BB')
+     DF24              C                   CONST(X'BC')
+     DCLEAR            C                   CONST(X'BD')
+     DENTER            C                   CONST(X'F1')
+     DHELP             C                   CONST(X'F3')
+     DPAGUP            C                   CONST(X'F4')                         (ROLLDOWN)
+     DPAGDN            C                   CONST(X'F5')                         (ROLLUP)
+     DPRINT            C                   CONST(X'F6')
+     DFALSE            C                   CONST('0')                           *OFF
+     DTRUE             C                   CONST('1')                           *ON
+      * MISC FIELDS
+     D#WRITE           S              1A
+     DENDRN            S              4  0
+     DSFLRN            S              4  0
+     DMSGNUM1          S              4  0 INZ(0)
+      * Standard record deleted message for subfile
+     D #DMSG           C                   CONST('* Record deleted *')
+      *****************************************************************
+      ** Prototypes
+      ** CONVERT MMDDYYYY --> YYYYMMDD
+     D CVT2YMD         PR             8  0
+     D   PR_NUM                       8  0 VALUE
+      ** CONVERT  YYMMDD --> MMDDYYYY
+     D CVT2MDY         PR             8  0
+     D   PR_NUM                       8  0 VALUE
+      *****************************************************************
+      *            KEY LISTS
+      *****************************************************************
+      * GETKEY
+     C     GETKEY        KLIST
+     C                   KFLD                    TOUSR
+     C                   KFLD                    FROMDT
+     C                   KFLD                    TODT
+     C                   KFLD                    MSGNUM
+      * TSTKEY
+     C     TSTKEY        KLIST
+     C                   KFLD                    TOUSER
+     C                   KFLD                    FRMDAT
+     C                   KFLD                    TODAT
+     C                   KFLD                    MSGNUM1
+      *****************************************************************
+      *            P LISTS
+      *****************************************************************
+      * PLIST - PROGRAM ENTRY
+      *****************************************************************
+     C     *ENTRY        PLIST
+     C     PARM1         PARM      PARM1         PARM1            10
+      *****************************************************************
+      *            C SPECIFICATIONS
+      *****************************************************************
+      *****************************************************************
+      * PROGRAM MAINLINE
+      *****************************************************************
+     C                   EXSR      $RESET
+     C                   EXSR      $LOAD
+      * Perform until exit requested using F03 or F12
+     C                   DOU       KEY = F03
+     C                   WRITE     FKEYS
+     C                   EXFMT     SFL1CTL
+     C                   EVAL      SFLPS = PAGRRN
+     C                   IF        SFLPS < 1
+     C                   EVAL      SFLPS = 1
+     C                   ENDIF
+      * Process response
+     C     KEY           CASEQ     F06           $CREATE
+     C     KEY           CASEQ     F12           $F12SR                          F12 cancel
+     C     KEY           CASEQ     ENTER         $SFLRD
+     C                   ENDCS
+     C                   ENDDO
+      *
+     C                   EVAL      *INLR = TRUE
+     C                   RETURN
+      *==============================================================*
+      * Subroutine Section of Program                                *
+      *==============================================================*
+      * Initialization Subroutine
+     C     *INZSR        BEGSR
+      * Miscellaneous subfile program variables
+     C                   EVAL      SFLRN = 0
+     C                   EVAL      ENDRN = 0
+     C                   EVAL      SFLPS = 1
+     C                   ENDSR
+      *==============================================================*
+      * Load subfile                                                 *
+      *==============================================================*
+     C     $LOAD         BEGSR
+      * READ ALL RECORDS INTO THE SUBFILE.
+     C     *LOVAL        SETLL     MSGBRDPF
+     C                   READ      MSGBRDPF                               99
+     C                   EXSR      $FILLF
+     C                   DOW       (NOT *IN99)
+      * WRITE SUBFILE RECORD.
+     C                   EVAL      SFLRN = SFLRN + 1
+     C*                  Z-ADD     SFLRN         SRRN
+     C                   WRITE     SFL1
+     C                   READ      MSGBRDPF                               99
+     C                   EXSR      $FILLF
+     C                   ENDDO
+      *
+      * RETAIN LAST SUBFILE RRN
+     C                   Z-ADD     SFLRN         ENDRN
+      *
+      * IF NO RECORDS WERE ADDED TO SUBFILE, SET ERROR INDICATORS.
+     C                   IF        (SFLRN = *ZEROS)
+     C                   EVAL      *IN42 = FALSE
+     C                   ELSE
+      * ELSE, SET INDICATORS TO DISPLAY SUBFILE.
+     C                   EVAL      *IN42 = TRUE
+     C                   ENDIF
+      *
+     C                   ENDSR
+      *
+      *==============================================================*
+      * FILL FIELDS IN SUBFILE                                       *
+      *==============================================================*
+     C     $FILLF        BEGSR
+      **
+     C                   EVAL      FDATE = CVT2MDY(FROMDT)
+     C                   EVAL      TDATE = CVT2MDY(TODT)
+     C                   EVAL      TUSR = TOUSR
+     C                   EVAL      FUSR = FRMUSR
+     C                   EVAL      MSGNM = MSGNUM
+      **
+     C                   ENDSR
+      *==============================================================*
+      * Clear/Reset Subfile                                          *
+      *==============================================================*
+      *
+     C     $RESET        BEGSR
+      *
+      * CLEAR SUBFILE AND RESET SUBFILE DISPLAY INDICATOR.
+     C                   MOVE      *ON           *IN40
+     C                   WRITE     SFL1CTL
+     C                   MOVE      *OFF          *IN40
+     C                   MOVE      *OFF          *IN42
+      *
+      * RESET SUBFILE RECORD NUMBER AND SUBFILE POSITION FIELDS.
+     C                   RESET                   SFLRN
+     C                   RESET                   ENDRN
+     C                   RESET                   SFLPS
+      *
+     C                   ENDSR
+      *==============================================================*
+      * Read changed records in subfile to check for selection       *
+      *==============================================================*
+     C     $SFLRD        BEGSR
+     C                   IF        SFLRN > 0
+      * Did user make a selection?
+     C                   READC     SFL1                                   98
+     C                   DOW       (NOT *IN98)
+      * Check for Delete Request
+     C                   SELECT
+     C                   WHEN      (SELIO = 4)
+     C                   EXSR      $DELETE
+      * Check for Update Request
+     C                   WHEN      (SELIO = 2)
+     C                   EXSR      $UPDMS
+     C                   ENDSL
+     C                   READC     SFL1                                   98
+     C                   ENDDO
+      **
+     C                   IF        (SELIO = 2) OR (SELIO = 4)
+      * RE-DISPLAY SUBFILE
+      * RESET SCREEN1 BEFORE DISPLAYING IT
+     C                   EXSR      $RESET
+     C                   EXSR      $LOAD
+     C                   ENDIF
+      **
+     C                   ENDIF
+     C                   ENDSR
+      *
+      *==============================================================*
+      *  CREATE MESSAGE                                              *
+      *==============================================================*
+     C     $CREATE       BEGSR
+      * CLEAR SCREEN 2 FIELDS
+     C                   EXSR      $CLEAR
+     C     STAY1         TAG
+     C                   EXFMT     SCREEN2
+      * Process response
+     C     KEY           CABEQ     ENTER         STAY1
+     C                   SELECT
+     C                   WHEN      KEY = F12                                    PREVIOUS
+     C                   EXSR      $F12SR
+     C                   WHEN      KEY = F14                                    PROCESS
+     C                   EVAL      #WRITE = 'N'
+      * WRITE RECORD
+     C                   EXSR      $WRITE
+      * RE-DISPLAY SUBFILE
+     C                   EXSR      $RESET
+     C                   EXSR      $LOAD
+     C                   ENDSL
+     C                   ENDSR
+      *==============================================================*
+      *  WRITE NEW MESSAGE                                           *
+      *==============================================================*
+     C     $WRITE        BEGSR
+     C                   EVAL      FROMDT = CVT2YMD(FRMDAT)
+     C                   EVAL      TODT = CVT2YMD(TODAT)
+     C                   EVAL      TOUSR = TOUSER
+     C                   EVAL      FRMUSR = PARM1
+     C                   TIME                    TIME
+     C                   EVAL      MESSAGE = MESSAG
+     C                   SELECT
+      * CREATE A NEW MESSAGE RECORD
+     C                   WHEN      #WRITE = 'N'
+      * IF *IN97 = *OFF THEN WE HAVE THE NEXT MESSAGE NUMBER.
+      * NEXT WRITE THE NEW MESSAGE.
+     C                   EVAL      MSGNUM1 = 1
+     C     TSTKEY        SETLL     MSGBRDPF                               97
+     C                   IF        *IN97 = TRUE
+     C                   DOU       (*IN97 = FALSE)
+      * FIND NEXT MESSAGE NUMBER AVAILABLE IF NEW MESSAGE.
+     C                   EVAL      MSGNUM1 = MSGNUM1 + 1
+     C     TSTKEY        SETLL     MSGBRDPF                               97
+     C                   ENDDO
+     C                   ENDIF
+     C                   EVAL      MSGNUM = MSGNUM1
+     C                   WRITE     MSGBRDF
+     C                   Z-ADD     1             MSGNUM1
+      * UPDATE AN EXISTING MESSAGE
+     C                   WHEN      #WRITE = 'U'
+     C                   UPDATE    MSGBRDF
+     C                   ENDSL
+     C                   ENDSR
+      *==============================================================*
+      *  UPDATE MESSAGE                                              *
+      *==============================================================*
+     C     $UPDMS        BEGSR
+     C     GETKEY        CHAIN     MSGBRDPF                           21
+     C                   IF        (NOT *IN21)
+     C                   EVAL      FRMDAT = CVT2MDY(FROMDT)
+     C                   EVAL      TODAT = CVT2MDY(TODT)
+     C                   EVAL      TOUSER = TOUSR
+     C                   EVAL      MESSAG = MESSAGE
+     C                   EVAL      #WRITE = 'U'
+     C     STAY          TAG
+     C                   EXFMT     SCREEN2
+     C     KEY           CABEQ     ENTER         STAY                           STAY ON SCREEN
+     C     KEY           CASEQ     F12           $F12SR                         PREVIOUS
+     C     KEY           CASEQ     F14           $WRITE                         PROCESS
+     C                   ENDCS
+     C                   ENDIF
+     C                   ENDSR
+      *==============================================================*
+      *  DELETE MESSAGE                                              *
+      *==============================================================*
+     C     $DELETE       BEGSR
+     C     GETKEY        DELETE    MSGBRDF                            22
+     C                   ENDSR
+      *==============================================================*
+      * F12 key subroutine                                           *
+      *==============================================================*
+     C     $F12SR        BEGSR
+      * CLEAR SCREEN 2 FIELDS
+     C                   EXSR      $CLEAR
+      * RE-DISPLAY SUBFILE
+     C                   EXSR      $RESET
+     C                   EXSR      $LOAD
+     C                   ENDSR
+      *==============================================================*
+      * CLEAR SCREEN 2 subroutine                                    *
+      *==============================================================*
+     C     $CLEAR        BEGSR
+     C                   EVAL      FRMDAT = *ZEROS
+     C                   EVAL      TODAT = *ZEROS
+     C                   EVAL      TOUSER = *BLANKS
+     C                   EVAL      MESSAG = *BLANKS
+      * CLEAR SELECTION FIELD
+     C                   EVAL      SELIO = *ZEROS
+      * CLEAR *IN99
+     C                   EVAL      *IN99 = FALSE
+     C                   ENDSR
+      ****************************************************************
+      *==============================================================*
+      * PROCEDURE Section of program                                 *
+      *==============================================================*
+      *==============================================================*
+      * (CVT2YMD) CONVERT MMDDYYYY --> YYYYMMDD                      *
+      *                                                              *
+      * This procedure will convert dates from MMDDYYYY to YYYYMMDD  *
+      *==============================================================*
+     PCVT2YMD          B                   EXPORT
+      *--------------------------------------------------------------*
+     DCVT2YMD          PI             8  0
+     D  NUM                           8  0 VALUE
+      **
+     DYMD              S              8  0 INZ (*ZEROS)
+     DYYYY             S              4  0 INZ (*ZEROS)
+     DMMDD             S              4  0 INZ (*ZEROS)
+      *--------------------------------------------------------------*
+     C                   MOVEL     NUM           MMDD
+     C                   MOVE      NUM           YYYY
+     C                   MOVEL     YYYY          YMD
+     C                   MOVE      MMDD          YMD
+     C                   RETURN    YMD
+      *--------------------------------------------------------------*
+     C     *PSSR         BEGSR
+     C                   RETURN    0
+     C                   ENDSR
+      *--------------------------------------------------------------*
+     P CVT2YMD         E
+      *==============================================================*
+      * (CVT2MDY) CONVERT YYYYMMDD --> MMDDYYYY                      *
+      *                                                              *
+      * This procedure will convert dates from YYYYMMDD to MMDDYYYY  *
+      *==============================================================*
+     PCVT2MDY          B                   EXPORT
+      *--------------------------------------------------------------*
+     DCVT2MDY          PI             8  0
+     D  NUM                           8  0 VALUE
+      **
+     DMDY              S              8  0 INZ (*ZEROS)
+     DYYYY             S              4  0 INZ (*ZEROS)
+     DMMDD             S              4  0 INZ (*ZEROS)
+      *--------------------------------------------------------------*
+     C                   MOVE      NUM           MMDD
+     C                   MOVEL     NUM           YYYY
+     C                   MOVE      YYYY          MDY
+     C                   MOVEL     MMDD          MDY
+     C                   RETURN    MDY
+      *--------------------------------------------------------------*
+     C     *PSSR         BEGSR
+     C                   RETURN    0
+     C                   ENDSR
+      *--------------------------------------------------------------*
+     P CVT2MDY         E
+      *--------------------------------------------------------------*
+      **** END OF PROGRAM ********************************************

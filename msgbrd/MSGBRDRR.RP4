@@ -1,0 +1,179 @@
+      *****************************************************************
+      ** COMPANY NAME: HPA SYSTEMS
+      *****************************************************************
+      ** Application......: MESSAGE BOARD
+      **
+      ** Module Name......: MESSAGE REMOVAL PROGRAM
+      ** Program Name.....: MSFBRDRR
+      ** Program Description: REMOVES EXPIRED MESSAGES.
+      **
+      **
+      ** Documentation....: RICHARD KNECHTEL
+      ** Called By........: WHATEVER YOU WANT.
+      ** Sequence.........:
+      ** Programs Called..:
+      **
+      ** Create Options...:  *USRPRF(USER)
+      ** Object Owner.....:  QPGMR
+      ** CREATED By.......:  RICHARD KNECHTEL
+      ** Creation Date....:  12/01/2001
+      **
+      *********  LICENSE  ************************************
+      *                                                      *
+      * This program is free software; you can redistribute  *
+      * it and/or modify it under the terms of the GNU       *
+      * General Public License as published by  the Free     *
+      * Software Foundation; either version 2 of the License,*
+      * or (at your option) any later version.               *
+      *                                                      *
+      * This program is distributed in the hope that it will *
+      * be useful, but WITHOUT ANY WARRANTY; without even    *
+      * the implied warranty of MERCHANTABILITY or FITNESS   *
+      * FOR A PARTICULAR PURPOSE.  See the GNU General       *
+      * Public License for more details.                     *
+      *                                                      *
+      * You should have received a copy of the GNU General   *
+      * Public License along with this program; if not,      *
+      * write to the                                         *
+      * Free Software                                        *
+      * Foundation, Inc., 675 Mass Ave,                      *
+      * Cambridge, MA 02139, USA.                            *
+      *                                                      *
+      ********************************************************
+      *****************************************************************
+      *     INPUT FILES: MSGBRDPF
+      *    UPDATE FILES: MSGBRDPF
+      *****************************************************************
+      *                          PARAMETERS
+      *   ------------------------------------------------------------
+      *
+      *   PARAMETERS PASSED TO THIS PROGRAM:
+      *
+      *      NAME        DESCRIPTION
+      *   ----------   -----------------------------------------------
+      *    NONE
+      *
+      *****************************************************************
+      *                        PROGRAMS CALLED
+      *   ------------------------------------------------------------
+      *
+      *****************************************************************
+      *                        INDICATOR SUMMARY
+      *   ------------------------------------------------------------
+      *   *INXX    FUNCTION
+      *   ------ -----------------------------------------------------
+      *   *INLR  END OF FILE
+      *   *IN99  END OF FILE ON MSGBRDPF
+      *   *IN94  NO RECORD FOUND - SETLL
+      *
+      *****************************************************************
+      *   COMPILE NOTES:
+      *                 CRTBNDRPG PGM(*LIBL/MSGBRDRR)
+      *                               SRCFILE(*LIBL/QRPGLESRC)
+      *                               DFTACTGRP(*NO)
+      *****************************************************************
+      *  MODIFICATION LOG:                                            *
+      *===============================================================*
+      *##|WHO        |WHEN      |WHAT & (CSR#)                        *
+      *===============================================================*
+      *  |           |          |                                     *
+      *  |           |          |                                     *
+      *---------------------------------------------------------------*
+      *********  LICENSE  ************************************
+      *                                                      *
+      * This program is free software; you can redistribute  *
+      * it and/or modify it under the terms of the GNU       *
+      * General Public License as published by  the Free     *
+      * Software Foundation; either version 2 of the License,*
+      * or (at your option) any later version.               *
+      *                                                      *
+      * This program is distributed in the hope that it will *
+      * be useful, but WITHOUT ANY WARRANTY; without even    *
+      * the implied warranty of MERCHANTABILITY or FITNESS   *
+      * FOR A PARTICULAR PURPOSE.  See the GNU General       *
+      * Public License for more details.                     *
+      *                                                      *
+      * You should have received a copy of the GNU General   *
+      * Public License along with this program; if not,      *
+      * write to the                                         *
+      * Free Software                                        *
+      * Foundation, Inc., 675 Mass Ave,                      *
+      * Cambridge, MA 02139, USA.                            *
+      *                                                      *
+      ********************************************************
+      *****************************************************************
+      *            F SPECIFICATIONS
+      *****************************************************************
+     FMSGBRDPF  UF   E           K DISK
+      *****************************************************************
+      *            D SPECIFICATIONS
+      *****************************************************************
+      ** STANDARD CONSTANTS
+     DFALSE            C                   CONST('0')                           *OFF
+     DTRUE             C                   CONST('1')                           *ON
+      ** WORK VARIABLES **
+     DSYSDAT           S              8S 0
+      *****************************************************************
+      ** Prototypes
+      ** CONVERT MMDDYYYY --> YYYYMMDD
+     D CVT2YMD         PR             8  0
+     D   PR_NUM                       8  0 VALUE
+      *****************************************************************
+      *****************************************************************
+      *            C SPECIFICATIONS
+      *****************************************************************
+      ******************************************************
+      **** MAINLINE PROGRAM ********************************
+      **
+      ** GET FIRST MESSAGE IF ONE.
+     C     *LOVAL        SETLL     MSGBRDPF                           94
+     C                   DOU       (*IN99)
+     C                   READ      MSGBRDPF                               99
+      ** IF MESSAGE IS EXPIRED - DELETE IT
+     C                   IF        (TODT < SYSDAT)
+     C                   DELETE    MSGBRDF
+     C                   ENDIF
+     C                   ENDDO
+      **
+      ** WE ARE OUT OF HERE!
+     C                   EVAL      *INLR = TRUE
+     C                   RETURN
+      **************************************************
+      ** SUBROUTINES
+      **************************************************
+      * INITIALIZATION
+      **************************************************
+     C     *INZSR        BEGSR
+     C                   EVAL      SYSDAT = *DATE
+     C                   EVAL      SYSDAT = CVT2YMD(SYSDAT)
+     C                   ENDSR
+      ****************************************************************
+      *==============================================================*
+      * PROCEDURE Section of program                                 *
+      *==============================================================*
+      *==============================================================*
+      * (CVT2YMD) CONVERT MMDDYYYY --> YYYYMMDD                      *
+      *                                                              *
+      * This procedure will convert dates from MMDDYYYY to YYYYMMDD  *
+      *==============================================================*
+     PCVT2YMD          B                   EXPORT
+      *--------------------------------------------------------------*
+     DCVT2YMD          PI             8  0
+     D  NUM                           8  0 VALUE
+      **
+     DYMD              S              8  0 INZ (*ZEROS)
+     DYYYY             S              4  0 INZ (*ZEROS)
+     DMMDD             S              4  0 INZ (*ZEROS)
+      *--------------------------------------------------------------*
+     C                   MOVEL     NUM           MMDD
+     C                   MOVE      NUM           YYYY
+     C                   MOVEL     YYYY          YMD
+     C                   MOVE      MMDD          YMD
+     C                   RETURN    YMD
+      *--------------------------------------------------------------*
+     C     *PSSR         BEGSR
+     C                   RETURN    0
+     C                   ENDSR
+      *--------------------------------------------------------------*
+     P CVT2YMD         E
+      **** END OF PROGRAM ********************************************
